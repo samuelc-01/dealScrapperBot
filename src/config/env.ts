@@ -1,6 +1,14 @@
-import "dotenv/config";
+import 'dotenv/config';
+
+function required(key: string): string {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`Missing environment variable: ${key}`);
+  }
+  return value;
+}
 
 export const env = {
-  telegramToken: process.env.TELEGRAM_TOKEN!,
-  telegramChatId: process.env.TELEGRAM_CHAT_ID!,
+  telegramToken: required('TELEGRAM_TOKEN'),
+  telegramChatId: required('TELEGRAM_CHAT_ID'),
 };
