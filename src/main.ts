@@ -1,17 +1,24 @@
 import { fetchDeals } from './integrations/mercadolivre';
 import { sendMessage } from './integrations/telegram';
-import { filterDeals } from './services/filter';
 
 async function main() {
+  console.log('search produts...');
   const deals = await fetchDeals('ssd');
 
-  const filtered = filterDeals(deals);
-
-  for (const deal of filtered.slice(0, 5)) {
-    await sendMessage(
-      `🔥 *${deal.title}*\n💰 R$ ${deal.price}\n🔗 ${deal.url}`,
-    );
+  if (deals.length === 0) {
+    console.log("don't find anything or block");
+    return;
   }
+
+  console.log(`Finding something ${deals.length} sale`);
+
+  for (const deal of deals.slice(0, 3)) {
+    console.log('Sending:', deal.title);
+
+    await sendMessage(`🔥 ${deal.title}\n💰 R$ ${deal.price}\n🔗 ${deal.url}`);
+  }
+
+  console.log('Finish');
 }
 
 main();
