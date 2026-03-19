@@ -1,24 +1,50 @@
 {
-  "name": "modernhigh-securityapi",
+  "name": "modern-high-security-api",
   "version": "1.0.0",
-  "description": "modernHigh-securityAPI",
-  "license": "ISC",
-  "author": "samuelc-01dev",
+  "description": "Secure API for aggregating and delivering tech deals",
+  "main": "dist/main.js",
   "type": "commonjs",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write .",
+    "audit": "npm audit",
+    "test": "echo \"No tests yet\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samuelc-01/modernHigh-securityAPI.git"
+  },
+  "keywords": [
+    "api",
+    "security",
+    "deals",
+    "telegram",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samuelc-01/modernHigh-securityAPI/issues"
+  },
+  "homepage": "https://github.com/samuelc-01/modernHigh-securityAPI#readme",
+  "engines": {
+    "node": ">=20"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "axios": "^1.13.6",
+    "dotenv": "^17.3.1",
+    "telegraf": "^4.16.3"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
     "@types/node": "^25.5.0",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0"
   }
 }

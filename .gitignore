@@ -1,9 +1,14 @@
-# Dependências
+# Dependencies
 node_modules/
 
-# Build
+# Build output
 dist/
 build/
+
+# Environment variables (CRÍTICO)
+.env
+.env.*
+!.env.example
 
 # Logs
 logs/
@@ -12,12 +17,7 @@ npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
-# Ambiente
-.env
-.env.*
-!.env.example
-
-# Sistema
+# OS files
 .DS_Store
 Thumbs.db
 
@@ -28,15 +28,16 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 
-# Testes
+# Coverage (tests)
 coverage/
 
-# Docker (opcional)
-.dockerignore
+# Temporary files
+tmp/
+temp/
 
-# Prisma (se usar migrations locais sensíveis)
-# prisma/dev.db
+# Docker
+docker-compose.override.yml
 
 # Misc
-.tmp/
-.cache/
+*.swp
+*.swo
