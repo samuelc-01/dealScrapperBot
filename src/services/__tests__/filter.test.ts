@@ -1,16 +1,52 @@
-import { Deal } from '../../integrations/mercadolivre';
-import { filterDeals } from '../filter';
+import { Deal } from '../../domain/deal';
+import { filterDealsByPrice } from '../filter';
 
-describe('filterDeals', () => {
+describe('filterDealsByPrice', () => {
   const mockDeals: Deal[] = [
-    { title: 'SSD 256GB', price: 'R$ 199,90', url: 'https://example.com/1' },
-    { title: 'SSD 512GB', price: 'R$ 350,00', url: 'https://example.com/2' },
-    { title: 'SSD 1TB', price: 'R$ 899,90', url: 'https://example.com/3' },
-    { title: 'Memoria RAM 8GB', price: 'R$ 150', url: 'https://example.com/4' },
+    {
+      id: '1',
+      title: 'SSD 256GB',
+      price: 'R$ 199,90',
+      numericPrice: 199.9,
+      currency: 'BRL',
+      productUrl: 'https://example.com/1',
+      affiliateUrl: 'https://example.com/1?a=1',
+      source: 'aliexpress',
+    },
+    {
+      id: '2',
+      title: 'SSD 512GB',
+      price: 'R$ 350,00',
+      numericPrice: 350,
+      currency: 'BRL',
+      productUrl: 'https://example.com/2',
+      affiliateUrl: 'https://example.com/2?a=1',
+      source: 'aliexpress',
+    },
+    {
+      id: '3',
+      title: 'SSD 1TB',
+      price: 'R$ 899,90',
+      numericPrice: 899.9,
+      currency: 'BRL',
+      productUrl: 'https://example.com/3',
+      affiliateUrl: 'https://example.com/3?a=1',
+      source: 'aliexpress',
+    },
+    {
+      id: '4',
+      title: 'Memoria RAM 8GB',
+      price: 'R$ 150,00',
+      numericPrice: 150,
+      currency: 'BRL',
+      productUrl: 'https://example.com/4',
+      affiliateUrl: 'https://example.com/4?a=1',
+      source: 'aliexpress',
+    },
   ];
 
-  it('should filter deals with default maxPrice of 500', () => {
-    const result = filterDeals(mockDeals);
+  it('should filter deals with maxPrice of 500', () => {
+    const result = filterDealsByPrice(mockDeals, 500);
     expect(result).toHaveLength(3);
     expect(result.map((d) => d.title)).toEqual([
       'SSD 256GB',
@@ -20,7 +56,7 @@ describe('filterDeals', () => {
   });
 
   it('should filter deals with custom maxPrice', () => {
-    const result = filterDeals(mockDeals, 200);
+    const result = filterDealsByPrice(mockDeals, 200);
     expect(result).toHaveLength(2);
     expect(result.map((d) => d.title)).toEqual([
       'SSD 256GB',
@@ -29,32 +65,22 @@ describe('filterDeals', () => {
   });
 
   it('should handle empty array', () => {
-    const result = filterDeals([]);
+    const result = filterDealsByPrice([], 500);
     expect(result).toHaveLength(0);
   });
 
-  it('should handle deals with invalid price format', () => {
-    const dealsWithInvalidPrice: Deal[] = [
-      { title: 'Test', price: '', url: 'https://example.com' },
-      { title: 'Test 2', price: 'R$ invalid', url: 'https://example.com' },
-    ];
-    const result = filterDeals(dealsWithInvalidPrice);
+  it('should handle deals with invalid numeric price', () => {
+    const dealsWithInvalidPrice: Deal[] = [{
+      id: 'x',
+      title: 'Test',
+      price: 'R$ 0,00',
+      numericPrice: 0,
+      currency: 'BRL',
+      productUrl: 'https://example.com',
+      affiliateUrl: 'https://example.com?a=1',
+      source: 'aliexpress',
+    }];
+    const result = filterDealsByPrice(dealsWithInvalidPrice, 500);
     expect(result).toHaveLength(0);
-  });
-
-  it('should handle prices with comma as decimal separator', () => {
-    const deals: Deal[] = [
-      { title: 'Product', price: 'R$ 499,99', url: 'https://example.com' },
-    ];
-    const result = filterDeals(deals, 500);
-    expect(result).toHaveLength(1);
-  });
-
-  it('should handle prices with dot as decimal separator', () => {
-    const deals: Deal[] = [
-      { title: 'Product', price: 'R$ 499.99', url: 'https://example.com' },
-    ];
-    const result = filterDeals(deals, 500);
-    expect(result).toHaveLength(1);
   });
 });

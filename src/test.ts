@@ -1,9 +1,8 @@
-import axios from 'axios';
+import { runDealPipeline } from './services/pipeline';
 
 async function test() {
-  const res = await axios.get('https://dummyjson.com/products');
-
-  console.log(res.data.products.slice(0, 2));
+  const summary = await runDealPipeline();
+  console.log('Pipeline summary:', summary);
 }
 
 test();

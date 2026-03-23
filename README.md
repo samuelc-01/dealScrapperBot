@@ -1,41 +1,54 @@
-# TechDeals Bot 🤖
+# AliExpress Affiliate Telegram Bot
 
-API para agregar e monitorar ofertas de tecnologia dos principais e-commerces brasileiros.
+Pipeline em TypeScript para buscar promocoes pela API oficial de afiliados da AliExpress e publicar no Telegram com link de afiliado.
 
-## Funcionalidades
+## O que este projeto faz
 
-- Integração com Shopee, Mercado Livre e Kabum
-- Web scraping com Puppeteer e Cheerio
-- Notificações via Telegram
-- TypeScript com tipagem completa
-- Testes unitários com Jest
-- Linting com ESLint + Prettier
+- Coleta ofertas da AliExpress via endpoint oficial
+- Gera/resolve deeplink de afiliado
+- Aplica filtro de preco maximo
+- Evita duplicidade de envio por ciclo
+- Publica no Telegram com formatacao de oferta
+- Executa continuamente com agendamento (`node-cron`)
 
-## Tecnologias
+## Pre-requisitos
 
-- **Runtime:** Node.js (>=20)
-- **Linguagem:** TypeScript
-- **Web Scraping:** Puppeteer, Cheerio, Axios
-- **Bot:** Telegraf (Telegram)
-- **Testes:** Jest + ts-jest
-- **Qualidade:** ESLint + Prettier
+- Node.js 20+
+- Conta de afiliado AliExpress ativa
+- Credenciais oficiais da API de afiliado:
+  - `ALIEXPRESS_APP_KEY`
+  - `ALIEXPRESS_APP_SECRET`
+  - `ALIEXPRESS_TRACKING_ID`
+- Bot do Telegram e `chat_id` de destino
 
-## Instalação
+## Instalacao
 
-```bash
-npm install
-```
-
-## Configuração
-
-Crie um arquivo `.env` na raiz do projeto:
+1. Instale dependencias:
+   ```bash
+   npm install
+   ```
+2. Configure o arquivo `.env` na raiz:
 
 ```env
-TELEGRAM_TOKEN=seu_token_aqui
-TELEGRAM_CHAT_ID=seu_chat_id_aqui
+TELEGRAM_TOKEN=seu_token_do_bot
+TELEGRAM_CHAT_ID=seu_chat_id
+
+ALIEXPRESS_APP_KEY=sua_app_key
+ALIEXPRESS_APP_SECRET=seu_app_secret
+ALIEXPRESS_TRACKING_ID=seu_tracking_id
+
+# opcionais
+ALIEXPRESS_API_BASE_URL=https://api-sg.aliexpress.com
+ALIEXPRESS_DEALS_PATH=/affiliate/deals/hot
+ALIEXPRESS_DEEPLINK_PATH=/affiliate/deeplink/create
+ALIEXPRESS_QUERY_KEYWORD=smartphone
+MAX_PRICE_BRL=500
+POLL_INTERVAL_MINUTES=15
+MAX_ITEMS_PER_CYCLE=10
+REQUEST_TIMEOUT_MS=12000
 ```
 
-## Scripts Disponíveis
+## Scripts
 
 | Comando             | Descrição                              |
 | ------------------- | -------------------------------------- |
@@ -48,27 +61,35 @@ TELEGRAM_CHAT_ID=seu_chat_id_aqui
 | `npm run format`    | Formatar código com Prettier           |
 | `npm run typecheck` | Verificar tipos TypeScript             |
 
-## Estrutura do Projeto
+## Estrutura principal
 
 ```
 src/
 ├── config/
-│   └── env.ts          # Configuração de variáveis de ambiente
+│   └── env.ts                     # Variaveis obrigatorias/opcionais
+├── domain/
+│   └── deal.ts                    # Contrato interno de oferta
 ├── integrations/
-│   ├── shopee.ts       # Web scraping Shopee (Puppeteer)
-│   ├── mercadolivre.ts # Web scraping Mercado Livre (Cheerio)
-│   ├── kabum.ts        # Web scraping Kabum (Cheerio)
-│   └── telegram.ts     # Envio de notificações
+│   ├── aliexpress.client.ts       # Cliente HTTP com autenticacao/assinatura
+│   ├── aliexpress.ts              # Normalizacao e montagem de ofertas
+│   └── telegram.ts                # Envio para Telegram
 ├── services/
-│   └── filter.ts       # Lógica de filtragem de ofertas
-├── main.ts             # Entry point da aplicação
-└── test.ts             # Arquivo de teste rápido
+│   ├── dedupe.ts                 # Evita spam de ofertas duplicadas
+│   ├── filter.ts                 # Filtro por preco
+│   ├── pipeline.ts               # Orquestracao do ciclo
+│   └── scheduler.ts              # Agendamento recorrente
+└── main.ts                       # Bootstrap da aplicacao
 ```
 
-## Status do Projeto
+## Fluxo de execucao
 
-⚠️ **MVP em desenvolvimento** - O projeto enfrentou bloqueios 403 dos sites de e-commerce. A arquitetura está pronta para receber futuras melhorias.
+1. Busca promocoes na API da AliExpress
+2. Gera link de afiliado para cada item
+3. Filtra por preco maximo
+4. Deduplica ofertas no ciclo
+5. Envia para Telegram
+6. Agenda proxima execucao automaticamente
 
-## Licença
+## Observacao importante
 
-MIT
+A assinatura/autenticacao pode variar de acordo com o endpoint oficial habilitado na sua conta de afiliado. Se o seu painel usar nomes de parametros diferentes, ajuste os caminhos e campos no modulo `src/integrations/aliexpress.client.ts`.

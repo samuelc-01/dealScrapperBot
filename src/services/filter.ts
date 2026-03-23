@@ -1,10 +1,5 @@
-import { Deal } from '../integrations/mercadolivre';
+import { Deal } from '../domain/deal';
 
-export function filterDeals(deals: Deal[], maxPrice: number = 500): Deal[] {
-  return deals.filter((deal) => {
-    const priceMatch = deal.price.match(/[\d.,]+/);
-    if (!priceMatch) return false;
-    const price = parseFloat(priceMatch[0].replace(',', '.'));
-    return price <= maxPrice;
-  });
+export function filterDealsByPrice(deals: Deal[], maxPrice: number): Deal[] {
+  return deals.filter((deal) => deal.numericPrice > 0 && deal.numericPrice <= maxPrice);
 }
