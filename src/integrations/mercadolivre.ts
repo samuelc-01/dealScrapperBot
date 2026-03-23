@@ -1,26 +1,68 @@
 import axios from 'axios';
+import * as cheerio from 'cheerio';
 
-export async function fetchDeals(query: string) {
+export interface Deal {
+  title: string;
+  price: string;
+  url: string;
+}
+
+export async function fetchDeals(query: string): Promise<Deal[]> {
   try {
-    const response = await axios.get(
-      `https://api.mercadolibre.com/sites/MLB/search?q=${query}&limit=10`,
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0',
-        },
+    const url = `https://lista.mercadolivre.com.br/${query}`;
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
       },
-    );
+    });
 
-    return response.data.results.map((item: any) => ({
-      title: item.title,
-      price: item.price,
-      url: item.permalink,
-    }));
+    const $ = cheerio.load(response.data);
+    const deals: Deal[] = [];
+
+    console.log('HTML length:', response.data.length);
+    console.log('Has captcha:', response.data.includes('captcha'));
+    console.log('Has login:', response.data.includes('login'));
+
+    const items = $(
+      'li, div[role="article"], div[data-component-type="s-search-result"]',
+    );
+    console.log('Items found:', items.length);
+
+    items.each((_, el) => {
+      const title =
+        $(el).find('h3').text().trim() ||
+        $(el).find('.poly-component__title').text().trim() ||
+        $(el).find('span[data-testid="title"]').text().trim();
+      const priceFraction =
+        $(el).find('.poly-price__current .price-tag-fraction').text().trim() ||
+        $(el).find('[data-testid="price-part"]').first().text().trim() ||
+        $(el).find('.price-tag-fraction').first().text().trim();
+      const priceCents = $(el)
+        .find('.poly-price__current .price-tag-cents')
+        .text()
+        .trim();
+      const price = priceFraction
+        ? `R$ ${priceFraction}${priceCents ? ',' + priceCents : ''}`
+        : '';
+      const url = $(el).find('a').attr('href') || '';
+
+      if (title && title.length > 10 && price) {
+        deals.push({
+          title: title.replace(/\s+/g, ' '),
+          price,
+          url,
+        });
+      }
+    });
+
+    return deals;
   } catch (error: any) {
     console.error('Erro ao buscar Mercado Livre:');
-    console.error(error.response?.status);
-    console.error(error.response?.data);
-
-    return []; // NÃO quebra o sistema
+    console.error(error.message);
+    return [];
   }
 }
