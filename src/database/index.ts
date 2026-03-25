@@ -1,7 +1,7 @@
-import Database from 'better-sqlite3';
-import { PostedDeal, FilterSettings } from '../types/index.js';
+import Database from "better-sqlite3";
+import { PostedDeal, FilterSettings } from "../types/index.js";
 
-const db = new Database('./data/deals.db');
+const db = new Database("./data/deals.db");
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS posted_deals (
@@ -30,7 +30,17 @@ db.exec(`
 `);
 
 export function isDealPosted(dealId: string): boolean {
-  const stmt = db.prepare('SELECT 1 FROM posted_deals WHERE deal_id = ?');
+  const stmt = db.prepare("SELECT 1 FROM posted_deals WHERE deal_id = ?");
   return stmt.get(dealId) !== undefined;
+}
 
-  
+export function markDealAsPosted(
+  dealId: string,
+  title: string,
+  link: string,
+): void {
+  const stmt = db.prepare(`
+    INSERT OR IGNORE INTO posted_deeals (deal_id, title, link) VALUES (?, ?, ?)
+    `);
+  stmt.run(dealId, title, link);
+}
