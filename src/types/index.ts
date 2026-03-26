@@ -3,9 +3,10 @@ export interface Deal {
   title: string;
   description: string;
   originalPrice?: string;
-  disccountPercent?: number;
-  freeShipping?: boolean;
-  link?: string;
+  salePrice: string;
+  discountPercent?: number;
+  freeShipping: boolean;
+  link: string;
   image?: string;
   store: string;
   postedAt?: Date;
