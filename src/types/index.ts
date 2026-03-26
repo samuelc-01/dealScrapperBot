@@ -16,7 +16,7 @@ export interface FilterSettings {
   minDiscountPercent?: number;
   requireFreeShipping: boolean;
   maxPrice?: number;
-  minPrice: number;
+  minPrice?: number;
   maxPostsPerDay: number;
 }
 

@@ -72,3 +72,49 @@ export function resetDailyCount(): void {
   `);
   stmt.run(today);
 }
+
+export function isPaused(): boolean {
+  const stmt = db.prepare("SELECT value FROM settings WHERE key = ?");
+  const result = stmt.get("paused") as { value: string } | undefined;
+  return result?.value === "true";
+}
+
+export function setPause(paused: boolean): void {
+  const stmt = db.prepare(
+    "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+  );
+  stmt.run("paused", paused ? "true" : "false");
+}
+
+export function getFilterSettings(): FilterSettings {
+  const defaults: FilterSettings = {
+    minDiscountPercent: 20,
+    requireFreeShipping: true,
+    maxPostsPerDay: 10,
+  };
+  const stmt = db.prepare("SELECT value FROM settings WHERE key = ?");
+  const result = stmt.get("filters") as { value: string } | undefined;
+
+  if (result) {
+    try {
+      return { ...defaults, ...JSON.parse(result.value) };
+    } catch {
+      return defaults;
+    }
+  }
+
+  return defaults;
+}
+
+export function setFilterSettings(settings: FilterSettings): void {
+  const stmt = db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)');
+  stmt.run('filters', JSON.stringify(settings));
+}
+
+export function getLastPostedTime(): Date | null {
+  const stmt = db.prepare('SELECT posted_at FROM posted_deals ORDER BY posted_at DESC LIMIT 1');
+  const result = stmt.get() as { posted_at: Date } | undefined;
+  return result?.posted_at ?? null;
+}
+
+export default db;
