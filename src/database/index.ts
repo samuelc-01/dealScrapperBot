@@ -44,3 +44,31 @@ export function markDealAsPosted(
     `);
   stmt.run(dealId, title, link);
 }
+
+export function getPostedDeals(limit: number = 10): PostedDeal[] {
+  const stmt = db.prepare(`
+    SELECT id, deal_id as dealId, title, link, posted_at as posted_at
+    FROM posted_deals ORDER BY posted_at DESC LIMIT ?`);
+  return stmt.all(limit) as PostedDeal[];
+}
+
+export function getTodayCount(): number {
+  const stmt = db.prepare("SELECT count FROM daily_counts WHERE date = ?");
+  const result = stmt.get(new Date().toISOString().split("T")[0]);
+  return result ? (result as { count: number }).count : 0;
+}
+export function incrementTodayCount(): void {
+  const today = new Date().toISOString().split("T")[0];
+  const stmt = db.prepare(`
+    INSERT OR REPLACE INTO daily_counts (date, count) VALUES (?, (SELECT count FROM daily_counts WHERE date = ?) + 1)
+  `);
+  stmt.run(today, today);
+}
+
+export function resetDailyCount(): void {
+  const today = new Date().toISOString().split("T")[0];
+  const stmt = db.prepare(`
+    UPDATE daily_counts SET count = 0, last_reset = CURRENT_TIMESTAMP WHERE date = ?
+  `);
+  stmt.run(today);
+}
