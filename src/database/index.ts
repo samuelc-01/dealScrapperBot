@@ -107,12 +107,16 @@ export function getFilterSettings(): FilterSettings {
 }
 
 export function setFilterSettings(settings: FilterSettings): void {
-  const stmt = db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)');
-  stmt.run('filters', JSON.stringify(settings));
+  const stmt = db.prepare(
+    "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+  );
+  stmt.run("filters", JSON.stringify(settings));
 }
 
 export function getLastPostedTime(): Date | null {
-  const stmt = db.prepare('SELECT posted_at FROM posted_deals ORDER BY posted_at DESC LIMIT 1');
+  const stmt = db.prepare(
+    "SELECT posted_at FROM posted_deals ORDER BY posted_at DESC LIMIT 1",
+  );
   const result = stmt.get() as { posted_at: Date } | undefined;
   return result?.posted_at ?? null;
 }
