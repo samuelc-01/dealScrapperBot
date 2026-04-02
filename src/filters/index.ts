@@ -1,7 +1,9 @@
+import { Deal } from "../types/index.js";
+
 function scoreDeal(deal: Deal): number {
   let score = 0;
 
-  if (deal.dicountPercent) {
+  if (deal.discountPercent) {
     score += deal.discountPercent * 2;
   }
 
@@ -15,12 +17,12 @@ function scoreDeal(deal: Deal): number {
   ) {
     score += 20;
   }
-  
-  if(deal.description.toLowerCase().includes('limited')) {
+
+  if (deal.description.toLowerCase().includes("limited")) {
     score += 10;
   }
-  
-  const price = parseFloat(deal.salePrice.replace(/[^0-9.]/g, ''))
+
+  const price = parseFloat(deal.salePrice.replace(/[^0-9.]/g, ""));
   if (price < 20) {
     score += 5;
   } else if (price > 100) {
@@ -29,5 +31,3 @@ function scoreDeal(deal: Deal): number {
 
   return score;
 }
-
-
