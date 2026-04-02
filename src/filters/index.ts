@@ -1,5 +1,50 @@
-import { Deal } from "../types/index.js";
+import { listenerCount } from "stream";
+import { Deal, FilterSettings, DEFAULT_SETTINGS } from "../types/index.js";
+import "dotenv/config";
 
+// -------- Utils --------
+function parseNumber(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  const n = Number(value);
+  return Number.isNaN(n) ? undefined : n;
+}
+
+function parsePrice(priceStr: string): number {
+  const parsed = parseFloat(priceStr.replace(/[^0-9.]/g, ""));
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+// -------- Cache --------
+let cachedSettings: FilterSettings | null = null;
+
+// -------- Settings --------
+export function getFilterSettings(): FilterSettings {
+  if (cachedSettings) return cachedSettings;
+
+  const settings: FilterSettings = {
+    minDiscountPercent:
+      parseNumber(process.env.MIN_DISCOUNT_PERCENT) ??
+      DEFAULT_SETTINGS.minDiscountPercent,
+
+    requireFreeShipping:
+      process.env.REQUIRE_FREE_SHIPPING === "true"
+        ? true
+        : DEFAULT_SETTINGS.requireFreeShipping,
+
+    maxPrice: parseNumber(process.env.MAX_PRICE) ?? DEFAULT_SETTINGS.maxPrice,
+
+    minPrice: parseNumber(process.env.MIN_PRICE) ?? DEFAULT_SETTINGS.minPrice,
+
+    maxPostsPerDay:
+      parseNumber(process.env.MAX_POSTS_PER_DAY) ??
+      DEFAULT_SETTINGS.maxPostsPerDay,
+  };
+
+  cachedSettings = settings;
+  return settings;
+}
+
+// -------- Scoring --------
 function scoreDeal(deal: Deal): number {
   let score = 0;
 
@@ -11,18 +56,19 @@ function scoreDeal(deal: Deal): number {
     score += 15;
   }
 
-  if (
-    deal.title.toLowerCase().includes("flash") ||
-    deal.title.toLowerCase().includes("lightning")
-  ) {
+  const title = deal.title.toLowerCase();
+  const description = deal.description.toLowerCase();
+
+  if (title.includes("flash") || title.includes("lightning")) {
     score += 20;
   }
 
-  if (deal.description.toLowerCase().includes("limited")) {
+  if (description.includes("limited")) {
     score += 10;
   }
 
-  const price = parseFloat(deal.salePrice.replace(/[^0-9.]/g, ""));
+  const price = parsePrice(deal.salePrice);
+
   if (price < 20) {
     score += 5;
   } else if (price > 100) {
@@ -30,4 +76,75 @@ function scoreDeal(deal: Deal): number {
   }
 
   return score;
+}
+
+// -------- Filter --------
+export function filterDeals(deals: Deal[]): Deal[] {
+  const settings = getFilterSettings();
+
+  return deals
+    .map((deal) => ({
+      ...deal,
+      price: parsePrice(deal.salePrice), // evita recomputar
+    }))
+
+    .filter((deal) => {
+      // Desconto mínimo
+      if (
+        deal.discountPercent !== undefined &&
+        deal.discountPercent < settings.minDiscountPercent
+      ) {
+        return false;
+      }
+
+      // Frete grátis obrigatório
+      if (settings.requireFreeShipping && !deal.freeShipping) {
+        return false;
+      }
+
+      // Preço máximo
+      if (settings.maxPrice !== undefined && deal.price > settings.maxPrice) {
+        return false;
+      }
+
+      // Preço mínimo
+      if (settings.minPrice !== undefined && deal.price < settings.minPrice) {
+        return false;
+      }
+
+      return true;
+    })
+
+    .map((deal) => ({
+      ...deal,
+      score: scoreDeal(deal),
+    }))
+
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+}
+
+function getTopDeals(deals: Deal[], count: number): Deal[] {
+  const filtered = filterDeals(deals);
+  return filtered.slice(0, count);
+}
+
+function adjustFiltersDynamically(availableDeals: Deal[]): FilterSettings {
+  const settings = getFilterSettings();
+
+  // Se muitos deals bons disponíveis, aumentamos a требования
+  const goodDeals = availableDeals.filter(
+    (d) => d.discountPercent! >= settings.minDiscountPercent && d.freeShipping,
+  ).length;
+
+  if (goodDeals > 20) {
+    // Muita oferta → aumentamos o mínimo
+    return { ...settings, minDiscountPercent: 30 };
+  }
+
+  if (goodDeals < 3) {
+    // Pouca oferta → diminuímos o mínimo
+    return { ...settings, minDiscountPercent: 15 };
+  }
+
+  return settings;
 }

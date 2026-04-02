@@ -14,7 +14,7 @@ export interface Deal {
 }
 
 export interface FilterSettings {
-  minDiscountPercent?: number;
+  minDiscountPercent: number;
   requireFreeShipping: boolean;
   maxPrice?: number;
   minPrice?: number;
@@ -34,3 +34,13 @@ export interface PostedDeal {
   link: string;
   postedAt: Date;
 }
+
+const DEFAULT_SETTINGS: FilterSettings = {
+  minDiscountPercent: 20,
+  requireFreeShipping: false,
+  maxPrice: 500,
+  minPrice: 5,
+  maxPostsPerDay: 10,
+};
+
+export { DEFAULT_SETTINGS };
