@@ -1,4 +1,3 @@
-import { listenerCount } from "stream";
 import { Deal, FilterSettings, DEFAULT_SETTINGS } from "../types/index.js";
 import "dotenv/config";
 
@@ -83,13 +82,9 @@ export function filterDeals(deals: Deal[]): Deal[] {
   const settings = getFilterSettings();
 
   return deals
-    .map((deal) => ({
-      ...deal,
-      price: parsePrice(deal.salePrice), // evita recomputar
-    }))
-
     .filter((deal) => {
-      // Desconto mínimo
+      const price = parsePrice(deal.salePrice);
+
       if (
         deal.discountPercent !== undefined &&
         deal.discountPercent < settings.minDiscountPercent
@@ -97,18 +92,15 @@ export function filterDeals(deals: Deal[]): Deal[] {
         return false;
       }
 
-      // Frete grátis obrigatório
       if (settings.requireFreeShipping && !deal.freeShipping) {
         return false;
       }
 
-      // Preço máximo
-      if (settings.maxPrice !== undefined && deal.price > settings.maxPrice) {
+      if (settings.maxPrice !== undefined && price > settings.maxPrice) {
         return false;
       }
 
-      // Preço mínimo
-      if (settings.minPrice !== undefined && deal.price < settings.minPrice) {
+      if (settings.minPrice !== undefined && price < settings.minPrice) {
         return false;
       }
 
@@ -123,12 +115,12 @@ export function filterDeals(deals: Deal[]): Deal[] {
     .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
 }
 
-function getTopDeals(deals: Deal[], count: number): Deal[] {
+export function getTopDeals(deals: Deal[], count: number): Deal[] {
   const filtered = filterDeals(deals);
   return filtered.slice(0, count);
 }
 
-function adjustFiltersDynamically(availableDeals: Deal[]): FilterSettings {
+export function adjustFiltersDynamically(availableDeals: Deal[]): FilterSettings {
   const settings = getFilterSettings();
 
   // Se muitos deals bons disponíveis, aumentamos a требования

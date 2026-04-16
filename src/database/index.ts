@@ -40,7 +40,7 @@ export function markDealAsPosted(
   link: string,
 ): void {
   const stmt = db.prepare(`
-    INSERT OR IGNORE INTO posted_deeals (deal_id, title, link) VALUES (?, ?, ?)
+    INSERT OR IGNORE INTO posted_deals (deal_id, title, link) VALUES (?, ?, ?)
     `);
   stmt.run(dealId, title, link);
 }
