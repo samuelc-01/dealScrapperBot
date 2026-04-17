@@ -1,5 +1,3 @@
-resumo de como foi o uso da ia, primeiro tive uma idea, dps imaginei as ferramentas, depois fui ajustando a ideia para funcionar no mvp para testar a ideia, muito baguca e ate entao surgiu esse documento aqui.
-
 # 📦 Deal Scraper Bot — Requirements & Specification
 
 ## 🎯 Objetivo
