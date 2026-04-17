@@ -29,75 +29,6 @@ Construir um bot automatizado que coleta ofertas do **Dealnews.com**, filtra as 
 
 ---
 
-## 🧩 Requisitos Funcionais
-
-### 1. Coleta de Dados (Scraper)
-
-* Extrair:
-
-  * Título da oferta
-  * Preço atual
-  * Preço original (se disponível)
-  * Link
-  * Imagem (opcional)
-* Suporte a múltiplas ofertas por execução
-* Tratamento de falhas de requisição
-
----
-
-### 2. Sistema de Filtros
-
-* Filtrar ofertas baseado em:
-
-  * Percentual de desconto
-  * Presença de frete grátis
-  * Score dinâmico de relevância
-* Retornar apenas as melhores ofertas
-
----
-
-### 3. Controle de Duplicatas
-
-* Armazenar `deal_id` único
-* Verificar antes de postar
-* Persistência em banco SQLite
-
----
-
-### 4. Limite Diário
-
-* Contabilizar número de posts por dia
-* Bloquear novos posts ao atingir limite (10)
-* Reset automático após 24h
-
----
-
-### 5. Publicação
-
-* Formatar mensagem com:
-
-  * Título
-  * Preço atual (com destaque)
-  * Preço antigo (tachado, se houver)
-  * Link
-  * Emojis e badges (ex: 🔥, 💸)
-* Enviar com imagem (quando disponível)
-* Fallback para texto simples
-
----
-
-### 6. Agendamento (Scheduler)
-
-* Executar a cada 1 hora
-* Pipeline:
-
-  ```
-  scrape → filter → deduplicate → post
-  ```
-* Tratamento de erros (retry/log)
-
----
-
 ### 7. Comandos do Bot
 
 * `/start` → mensagem inicial
@@ -107,33 +38,6 @@ Construir um bot automatizado que coleta ofertas do **Dealnews.com**, filtra as 
 * `/resume` → retomar automação
 * `/stats` → estatísticas do bot
 * `/reset` → reset manual do limite diário
-
----
-
-## 🗄️ Requisitos de Dados
-
-### Tabela: `posted_deals`
-
-```sql
-CREATE TABLE posted_deals (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  deal_id TEXT UNIQUE NOT NULL,
-  title TEXT NOT NULL,
-  link TEXT NOT NULL,
-  posted_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-```
-
----
-
-### Tabela: `daily_counts`
-
-```sql
-CREATE TABLE daily_counts (
-  date TEXT PRIMARY KEY,
-  count INTEGER DEFAULT 0
-);
-```
 
 ---
 
@@ -164,20 +68,6 @@ CREATE TABLE daily_counts (
 
 ---
 
-### Manutenibilidade
-
-* Código modular:
-
-  * `scraper/`
-  * `db/`
-  * `filters/`
-  * `poster/`
-  * `scheduler/`
-* Tipagem com TypeScript
-* Separação de responsabilidades
-
----
-
 ### Observabilidade
 
 * Logs básicos:
@@ -186,19 +76,6 @@ CREATE TABLE daily_counts (
   * número filtrado
   * número postado
 * Logs de erro detalhados
-
----
-
-## 🧪 Critérios de Aceitação
-
-* [ ] Bot coleta ofertas corretamente
-* [ ] Filtros retornam apenas ofertas relevantes
-* [ ] Nenhuma oferta duplicada é postada
-* [ ] Limite diário é respeitado (10/dia)
-* [ ] Mensagens são formatadas corretamente
-* [ ] Scheduler executa automaticamente
-* [ ] Comandos do bot funcionam corretamente
-* [ ] Sistema continua operando após falhas
 
 ---
 
@@ -238,11 +115,3 @@ flowchart TD
 
 ---
 
-## 📎 Observações Finais
-
-* Começar simples e evoluir incrementalmente
-* Validar cada módulo isoladamente antes de integrar
-* Evitar overengineering no início
-* Priorizar clareza e entendimento do código
-
-depois fui pedindo explicacao a cada etapa e implementando funcao por funcao com a ajuda da ia para nao ter nenhuma duvida, quero que resuma esse metodo para eu conseguir replicalo sempre que tiver uma ideia para testar
