@@ -1,99 +1,99 @@
 # 📦 Deal Scraper Bot — Requirements & Specification
 
-## 🎯 Objetivo
+## 🎯 Objective
 
-Construir um bot automatizado que coleta ofertas do **Dealnews.com**, filtra as melhores oportunidades e publica diretamente em um grupo, respeitando limites diários e evitando duplicações permanentes.
-
----
-
-## 📌 Escopo do Projeto
-
-### Fonte de Dados
-
-* Site único: **Dealnews.com**
-* Coleta via scraping (HTML parsing)
-
-### Publicação
-
-* Destino: Grupo (ex: Telegram, WhatsApp, etc.)
-* Formato: Mensagem estruturada com título, preço, link e imagem (quando disponível)
-
-### Limites
-
-* Máximo de **10 ofertas por dia**
-* Reset automático a cada 24 horas
-
-### Controle de Duplicação
-
-* Nenhuma oferta deve ser postada mais de uma vez (persistência permanente)
+Build an automated bot that collects deals from **Dealnews.com**, filters the best opportunities, and publishes them directly to a group, respecting daily limits and permanently avoiding duplicates.
 
 ---
 
-### 7. Comandos do Bot
+## 📌 Project Scope
 
-* `/start` → mensagem inicial
-* `/filter` → mostrar filtros ativos
-* `/posted` → listar ofertas postadas
-* `/pause` → pausar automação
-* `/resume` → retomar automação
-* `/stats` → estatísticas do bot
-* `/reset` → reset manual do limite diário
+### Data Source
+
+* Single site: **Dealnews.com**
+* Collection via scraping (HTML parsing)
+
+### Publishing
+
+* Destination: Group (e.g., Telegram, WhatsApp, etc.)
+* Format: Structured message with title, price, link, and image (when available)
+
+### Limits
+
+* Maximum of **10 deals per day**
+* Automatic reset every 24 hours
+
+### Duplicate Control
+
+* No deal should be posted more than once (permanent persistence)
 
 ---
 
-## ⚙️ Requisitos Não Funcionais
+### 7. Bot Commands
 
-### Segurança
+* `/start` → welcome message
+* `/filter` → show active filters
+* `/posted` → list posted deals
+* `/pause` → pause automation
+* `/resume` → resume automation
+* `/stats` → bot statistics
+* `/reset` → manual reset of the daily limit
 
-* Validação de dados extraídos (evitar conteúdo malicioso)
-* Não armazenar dados sensíveis
-* Proteção contra spam (rate limit)
-* Alinhamento com OWASP Top 10
+---
+
+## ⚙️ Non-Functional Requirements
+
+### Security
+
+* Validation of scraped data (avoid malicious content)
+* No storage of sensitive data
+* Spam protection (rate limiting)
+* Alignment with OWASP Top 10
 
 ---
 
 ### Performance
 
-* Execução eficiente (scraping leve)
-* Delay entre requisições (evitar bloqueio)
-* Baixo consumo de memória
+* Efficient execution (lightweight scraping)
+* Delay between requests (avoid blocking)
+* Low memory usage
 
 ---
 
-### Confiabilidade
+### Reliability
 
-* Retry automático em falhas
-* Logs de erro
-* Execução idempotente (não duplicar dados)
-
----
-
-### Observabilidade
-
-* Logs básicos:
-
-  * número de ofertas coletadas
-  * número filtrado
-  * número postado
-* Logs de erro detalhados
+* Automatic retry on failures
+* Error logging
+* Idempotent execution (no duplicate data)
 
 ---
 
-## 🚀 Fluxo Geral do Sistema
+### Observability
+
+* Basic logs:
+
+  * number of deals collected
+  * number filtered
+  * number posted
+* Detailed error logs
+
+---
+
+## 🚀 Overall System Flow
 
 ```mermaid
 flowchart TD
   A[Scheduler] --> B[Scraper]
   B --> C[Filter]
   C --> D[Check Duplicate]
-  D -->|Não duplicado| E[Post]
-  D -->|Duplicado| F[Ignorar]
+  D -->|Not duplicate| E[Post]
+  D -->|Duplicate| F[Ignore]
   E --> G[Update DB]
 ```
 
 ---
 
-## 📦 Stack Tecnológica
+## 📦 Tech Stack
 
 * Node.js
 * TypeScript
@@ -106,12 +106,9 @@ flowchart TD
 
 ## ✅ Definition of Done
 
-* Código modular e organizado
-* Banco funcionando com controle de duplicação
-* Scheduler ativo e estável
-* Logs implementados
-* Testes básicos funcionando
-* Deploy funcional (Railway / Render / VPS)
-
----
-
+* Modular, well-organized code
+* Working database with duplicate control
+* Active and stable scheduler
+* Logs implemented
+* Basic tests passing
+* Functional deployment (Railway / Render / VPS)
